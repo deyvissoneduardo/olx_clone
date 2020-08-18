@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:olx_clone/models/Usuario.dart';
 import 'package:olx_clone/routes/RoutesGenerate.dart';
-import 'package:olx_clone/shared/TextFildCuston.dart';
+import 'package:olx_clone/shared/widgets/BotaoCuston.dart';
+import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -133,13 +134,8 @@ class _LoginState extends State<Login> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      child: Text(
-                        _textoBotao,
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      color: Color(0xff9c27b0),
-                      padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                    BotaoCuston(
+                      texto: _textoBotao,
                       onPressed: () {
                         _validarCampos();
                       },

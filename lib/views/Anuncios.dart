@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:olx_clone/routes/RoutesGenerate.dart';
-import 'package:olx_clone/shared/TextFildCuston.dart';
+import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
 
 class Anuncios extends StatefulWidget {
   @override
@@ -17,7 +17,7 @@ class _AnunciosState extends State<Anuncios> {
   _escolhaMenuItem(String itemEscolhido) {
     switch (itemEscolhido) {
       case 'Meus anúncios':
-        /** tela meus anuncios **/
+        Navigator.pushNamed(context, RouteGenerate.TELA_MEUS_ANUNCIOS);
         break;
       case 'Entrar / Cadastra':
         Navigator.pushNamed(context, RouteGenerate.TELA_LOGIN);

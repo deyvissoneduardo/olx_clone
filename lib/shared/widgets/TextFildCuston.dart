@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TextFildCuston extends StatelessWidget {
   final TextEditingController controller;
@@ -7,13 +8,12 @@ class TextFildCuston extends StatelessWidget {
   final String hint;
   final TextInputType type;
 
-  TextFildCuston({
-    @required this.controller,
-    @required this.hint,
-    this.obscure = false,
-    this.autofocus = false,
-    this.type = TextInputType.text
-  });
+  TextFildCuston(
+      {@required this.controller,
+      @required this.hint,
+      this.obscure = false,
+      this.autofocus = false,
+      this.type = TextInputType.text});
 
   @override
   Widget build(BuildContext context) {
