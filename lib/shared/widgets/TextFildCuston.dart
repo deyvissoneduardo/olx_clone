@@ -7,23 +7,32 @@ class TextFildCuston extends StatelessWidget {
   final bool autofocus;
   final String hint;
   final TextInputType type;
+  final List<TextInputFormatter> inputFormatters;
+  final int maxLines;
+  final Function(String) validator;
 
   TextFildCuston(
       {@required this.controller,
       @required this.hint,
       this.obscure = false,
       this.autofocus = false,
-      this.type = TextInputType.text});
+      this.type = TextInputType.text,
+      this.inputFormatters,
+      this.maxLines = 1,
+      this.validator});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(bottom: 5),
-      child: TextField(
+      child: TextFormField(
         controller: this.controller,
         obscureText: this.obscure,
         autofocus: this.autofocus,
         keyboardType: this.type,
+        inputFormatters: this.inputFormatters,
+        validator: this.validator,
+        maxLines: this.maxLines,
         decoration: InputDecoration(
             contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:olx_clone/shared/widgets/BotaoCuston.dart';
+import 'package:olx_clone/shared/widgets/DropCuston.dart';
+import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
+import 'package:validadores/Validador.dart';
 
 class NovoAnuncio extends StatefulWidget {
   @override
@@ -14,8 +19,13 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
   /**  chave de validacao form **/
   final _formKey = GlobalKey<FormState>();
 
-  /** inicia lista de imagens **/
+  String _estadoSelecionado;
+  String _categoriaSelecionada;
+
+  /** inicia listas **/
   List<File> _listaImagens = List();
+  List<DropdownMenuItem<String>> _listaDropEstatos = List();
+  List<DropdownMenuItem<String>> _listaDropCategoria = List();
 
   _selecionarImagem() async {
     File imagemSelecionada =
@@ -26,6 +36,36 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
         _listaImagens.add(imagemSelecionada);
       });
     }
+  }
+
+  _carregaItensDrop() {
+    /** lista de estados **/
+    for (var estados in Estados.listaEstadosAbrv) {
+      _listaDropEstatos.add(DropdownMenuItem(
+        child: Text(estados),
+        value: estados,
+      ));
+    }
+    /** lista de categoria **/
+    _listaDropCategoria.add(DropdownMenuItem(
+      child: Text('Automovel'),
+      value: 'auto',
+    ));
+    _listaDropCategoria.add(DropdownMenuItem(
+      child: Text('Imovel'),
+      value: 'imovel',
+    ));
+    _listaDropCategoria.add(DropdownMenuItem(
+      child: Text('Eletronicos'),
+      value: 'eletro',
+    ));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _carregaItensDrop();
   }
 
   @override
@@ -165,10 +205,66 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 ),
                 /** meus dropdowm**/
                 Row(
-                  children: <Widget>[Text('Estado'), Text('Categoria')],
+                  children: <Widget>[
+                    DropCuston(
+                      hint: 'Estados',
+                      lista: _listaDropEstatos,
+                      itemSelecinado: _estadoSelecionado,
+                      valorSelecinado: _estadoSelecionado,
+                    ),
+                    DropCuston(
+                      hint: 'Categoria',
+                      lista: _listaDropCategoria,
+                      itemSelecinado: _categoriaSelecionada,
+                      valorSelecinado: _categoriaSelecionada,
+                    ),
+                  ],
                 ),
                 /** caixas de texto de btn **/
-                Text('Caixa de Texto'),
+                TextFildCuston(
+                  hint: 'Titulo',
+                  validator: (valor) {
+                    return Validador()
+                        .add(Validar.OBRIGATORIO, msg: 'Campo Obrigatorio')
+                        .valido(valor);
+                  },
+                ),
+                TextFildCuston(
+                  hint: 'Preço',
+                  type: TextInputType.number,
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter.digitsOnly,
+                    RealInputFormatter(centavos: true)
+                  ],
+                  validator: (valor) {
+                    return Validador()
+                        .add(Validar.OBRIGATORIO, msg: 'Campo Obrigatorio')
+                        .valido(valor);
+                  },
+                ),
+                TextFildCuston(
+                  hint: 'Telefone',
+                  type: TextInputType.phone,
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter.digitsOnly,
+                    TelefoneInputFormatter()
+                  ],
+                  validator: (valor) {
+                    return Validador()
+                        .add(Validar.OBRIGATORIO, msg: 'Campo Obrigatorio')
+                        .valido(valor);
+                  },
+                ),
+                TextFildCuston(
+                  hint: 'Descrição (200 caracteres)',
+                  maxLines: null,
+                  validator: (valor) {
+                    return Validador()
+                        .add(Validar.OBRIGATORIO, msg: 'Campo Obrigatorio')
+                        .maxLength(200, msg: 'Maximo 200 caracteres')
+                        .valido(valor);
+                  },
+                ),
                 BotaoCuston(
                   texto: 'Cadastra anúncio',
                   onPressed: () {
