@@ -10,6 +10,7 @@ class TextFildCuston extends StatelessWidget {
   final List<TextInputFormatter> inputFormatters;
   final int maxLines;
   final Function(String) validator;
+  final Function(String) onSaved;
 
   TextFildCuston(
       {@required this.controller,
@@ -19,7 +20,8 @@ class TextFildCuston extends StatelessWidget {
       this.type = TextInputType.text,
       this.inputFormatters,
       this.maxLines = 1,
-      this.validator});
+      this.validator,
+      this.onSaved});
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class TextFildCuston extends StatelessWidget {
         inputFormatters: this.inputFormatters,
         validator: this.validator,
         maxLines: this.maxLines,
+        onSaved: this.onSaved,
         decoration: InputDecoration(
             contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

@@ -1,10 +1,16 @@
 import 'dart:io';
 
 import 'package:brasil_fields/brasil_fields.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:olx_clone/models/Anuncio.dart';
+import 'package:olx_clone/routes/RoutesGenerate.dart';
+import 'package:olx_clone/shared/database/Firebase.dart';
 import 'package:olx_clone/shared/widgets/BotaoCuston.dart';
 import 'package:olx_clone/shared/widgets/DropCuston.dart';
 import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
@@ -16,11 +22,20 @@ class NovoAnuncio extends StatefulWidget {
 }
 
 class _NovoAnuncioState extends State<NovoAnuncio> {
+  /** instancias **/
+  FirebaseStorage _storage = FirebaseStorage.instance;
+  Firestore _banco = Firestore.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /** context global **/
+  BuildContext _dialogContext;
+
   /**  chave de validacao form **/
   final _formKey = GlobalKey<FormState>();
 
   String _estadoSelecionado;
   String _categoriaSelecionada;
+  Anuncio _anuncio;
 
   /** inicia listas **/
   List<File> _listaImagens = List();
@@ -61,11 +76,73 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
     ));
   }
 
+  /** metodo que exibe popup de salvando anuncio **/
+  _abriDailog(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                Text('Salvando Anuncio...')
+              ],
+            ),
+          );
+        });
+  }
+
+  _salvarAnuncio() async {
+    _abriDailog(_dialogContext);
+    /** upload das imagens **/
+    await _uploadImages();
+    //print('Lista de fotos: ${_anuncio.fotos.toString()}');
+    /** salva anuncio no banco **/
+    _salvarDadosDoAnuncio();
+  }
+
+  Future _salvarDadosDoAnuncio() async {
+    /** recupera usuario logado **/
+    FirebaseUser usuarioLoagado = await _auth.currentUser();
+    String idUsuario = usuarioLoagado.uid;
+
+    _banco
+        .collection(Firebase.COLECAO_MEUS_ANUNCIOS)
+        .document(idUsuario)
+        .collection(Firebase.COLECAO_ANUNCIOS)
+        .document(_anuncio.id)
+        .setData(_anuncio.toMap())
+        .then((_) {
+      Navigator.pop(_dialogContext);
+      Navigator.pushReplacementNamed(context, RouteGenerate.TELA_MEUS_ANUNCIOS);
+    });
+  }
+
+  Future _uploadImages() async {
+    StorageReference pastaRaiz = _storage.ref();
+    for (var images in _listaImagens) {
+      String nomeImage = DateTime.now().millisecondsSinceEpoch.toString();
+      StorageReference arquivo = pastaRaiz
+          .child(Firebase.COLECAO_MEUS_ANUNCIOS)
+          .child(_anuncio.id)
+          .child(nomeImage);
+      /** comeca upload **/
+      StorageUploadTask uploadTask = arquivo.putFile(images);
+      StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+      String url = await taskSnapshot.ref.getDownloadURL();
+      _anuncio.fotos.add(url);
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _carregaItensDrop();
+    _anuncio = Anuncio();
   }
 
   @override
@@ -206,23 +283,65 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 /** meus dropdowm**/
                 Row(
                   children: <Widget>[
-                    DropCuston(
-                      hint: 'Estados',
-                      lista: _listaDropEstatos,
-                      itemSelecinado: _estadoSelecionado,
-                      valorSelecinado: _estadoSelecionado,
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: DropdownButtonFormField(
+                          value: _estadoSelecionado,
+                          hint: Text("Estados"),
+                          onSaved: (estado) {
+                            _anuncio.estado = estado;
+                          },
+                          style: TextStyle(color: Colors.black, fontSize: 20),
+                          items: _listaDropEstatos,
+                          validator: (valor) {
+                            return Validador()
+                                .add(Validar.OBRIGATORIO,
+                                    msg: "Campo obrigatório")
+                                .valido(valor);
+                          },
+                          onChanged: (valor) {
+                            setState(() {
+                              _estadoSelecionado = valor;
+                            });
+                          },
+                        ),
+                      ),
                     ),
-                    DropCuston(
-                      hint: 'Categoria',
-                      lista: _listaDropCategoria,
-                      itemSelecinado: _categoriaSelecionada,
-                      valorSelecinado: _categoriaSelecionada,
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: DropdownButtonFormField(
+                          value: _categoriaSelecionada,
+                          hint: Text("Categorias"),
+                          onSaved: (categoria) {
+                            _anuncio.categoria = categoria;
+                          },
+                          style: TextStyle(color: Colors.black, fontSize: 20),
+                          items: _listaDropCategoria,
+                          validator: (valor) {
+                            return Validador()
+                                .add(Validar.OBRIGATORIO,
+                                    msg: "Campo obrigatório")
+                                .valido(valor);
+                          },
+                          onChanged: (valor) {
+                            setState(() {
+                              _categoriaSelecionada = valor;
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 ),
+
                 /** caixas de texto de btn **/
                 TextFildCuston(
                   hint: 'Titulo',
+                  onSaved: (titulo) {
+                    _anuncio.titulo = titulo;
+                  },
                   validator: (valor) {
                     return Validador()
                         .add(Validar.OBRIGATORIO, msg: 'Campo Obrigatorio')
@@ -231,6 +350,9 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 ),
                 TextFildCuston(
                   hint: 'Preço',
+                  onSaved: (preco) {
+                    _anuncio.preco = preco;
+                  },
                   type: TextInputType.number,
                   inputFormatters: [
                     WhitelistingTextInputFormatter.digitsOnly,
@@ -244,6 +366,9 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 ),
                 TextFildCuston(
                   hint: 'Telefone',
+                  onSaved: (telefone) {
+                    _anuncio.telefone = telefone;
+                  },
                   type: TextInputType.phone,
                   inputFormatters: [
                     WhitelistingTextInputFormatter.digitsOnly,
@@ -257,6 +382,9 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 ),
                 TextFildCuston(
                   hint: 'Descrição (200 caracteres)',
+                  onSaved: (descricao) {
+                    _anuncio.descricao = descricao;
+                  },
                   maxLines: null,
                   validator: (valor) {
                     return Validador()
@@ -268,7 +396,16 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                 BotaoCuston(
                   texto: 'Cadastra anúncio',
                   onPressed: () {
-                    if (_formKey.currentState.validate()) {}
+                    if (_formKey.currentState.validate()) {
+                      /** salva dados do form **/
+                      _formKey.currentState.save();
+
+                      /** configura o context do dialog**/
+                      _dialogContext = context;
+
+                      /** salva o anuncio **/
+                      _salvarAnuncio();
+                    }
                   },
                 )
               ],
