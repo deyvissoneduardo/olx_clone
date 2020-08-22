@@ -9,7 +9,6 @@ import 'package:olx_clone/shared/database/Firebase.dart';
 import 'package:olx_clone/shared/utils/Configuracao.dart';
 import 'package:olx_clone/shared/widgets/CarregandoAnuncios.dart';
 import 'package:olx_clone/shared/widgets/ListViewWidget.dart';
-import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
 
 class Anuncios extends StatefulWidget {
   @override
@@ -68,6 +67,26 @@ class _AnunciosState extends State<Anuncios> {
     _listaDropCategoria = Configuracoes.getCategorias();
   }
 
+  /** filtra na lista de anuncios do banco **/
+  Future<Stream<QuerySnapshot>> _filtraAnuncios() async {
+    Query query = _banco.collection(Firebase.COLECAO_ANUNCIOS);
+    /** filtra pelo estado **/
+    if (_itemEstadoSelecionado != null) {
+      query =
+          query.where(Firebase.DOC_ESTADO, isEqualTo: _itemEstadoSelecionado);
+    }
+    /** filtra pela categoria **/
+    if (_itemCategoriaSelecionada != null) {
+      query = query.where(Firebase.DOC_CATEGORIA,
+          isEqualTo: _itemCategoriaSelecionada);
+    }
+
+    Stream<QuerySnapshot> stream = query.snapshots();
+    stream.listen((dados) {
+      _controller.add(dados);
+    });
+  }
+
   /** metodo que recupera lista de anuncios do banco **/
   Future<Stream<QuerySnapshot>> _adcionarListenerAnuncio() async {
     Stream<QuerySnapshot> stream =
@@ -123,7 +142,10 @@ class _AnunciosState extends State<Anuncios> {
                         items: _listaDropEstatos,
                         style: TextStyle(fontSize: 22, color: Colors.black),
                         onChanged: (estado) {
-                          _itemEstadoSelecionado = estado;
+                          setState(() {
+                            _itemEstadoSelecionado = estado;
+                            _filtraAnuncios();
+                          });
                         },
                       ),
                     ),
@@ -145,7 +167,10 @@ class _AnunciosState extends State<Anuncios> {
                         items: _listaDropCategoria,
                         style: TextStyle(fontSize: 22, color: Colors.black),
                         onChanged: (categoria) {
-                          _itemCategoriaSelecionada = categoria;
+                          setState(() {
+                            _itemCategoriaSelecionada = categoria;
+                            _filtraAnuncios();
+                          });
                         },
                       ),
                     ),
