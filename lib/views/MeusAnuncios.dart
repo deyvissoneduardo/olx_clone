@@ -52,7 +52,11 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
         .document(_idUsuario)
         .collection(Firebase.COLECAO_ANUNCIOS)
         .document(idAnuncio)
-        .delete();
+        .delete()
+        .then((_) {
+      /** remove de local publico **/
+      _banco.collection(Firebase.COLECAO_ANUNCIOS).document(idAnuncio).delete();
+    });
   }
 
   @override
@@ -99,9 +103,13 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
               return ListView.builder(
                 itemCount: querySnapshot.documents.length,
                 itemBuilder: (_, index) {
+                  /** transforma snapshot em lista **/
                   List<DocumentSnapshot> anuncios =
                       querySnapshot.documents.toList();
+                  /** pega pelo index **/
                   DocumentSnapshot documentSnapshot = anuncios[index];
+
+                  /** muda anuncio para tipo snapshot **/
                   Anuncio anuncio =
                       Anuncio.fromDocumentsSnapshot(documentSnapshot);
 

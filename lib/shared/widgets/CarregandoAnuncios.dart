@@ -10,7 +10,9 @@ class CarregandoAnuncio extends StatelessWidget {
     return Container(
       child: Center(
         child: Column(
-          children: <Widget>[Text(this.texto), CircularProgressIndicator()],
+          children: <Widget>[Text(this.texto), CircularProgressIndicator(
+            backgroundColor: Color(0xff9c27b0),
+          )],
         ),
       ),
     );

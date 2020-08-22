@@ -9,10 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:olx_clone/models/Anuncio.dart';
-import 'package:olx_clone/routes/RoutesGenerate.dart';
 import 'package:olx_clone/shared/database/Firebase.dart';
+import 'package:olx_clone/shared/utils/Configuracao.dart';
 import 'package:olx_clone/shared/widgets/BotaoCuston.dart';
-import 'package:olx_clone/shared/widgets/DropCuston.dart';
 import 'package:olx_clone/shared/widgets/TextFildCuston.dart';
 import 'package:validadores/Validador.dart';
 
@@ -55,25 +54,10 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
 
   _carregaItensDrop() {
     /** lista de estados **/
-    for (var estados in Estados.listaEstadosAbrv) {
-      _listaDropEstatos.add(DropdownMenuItem(
-        child: Text(estados),
-        value: estados,
-      ));
-    }
+    _listaDropEstatos = Configuracoes.getEstados();
     /** lista de categoria **/
-    _listaDropCategoria.add(DropdownMenuItem(
-      child: Text('Automovel'),
-      value: 'auto',
-    ));
-    _listaDropCategoria.add(DropdownMenuItem(
-      child: Text('Imovel'),
-      value: 'imovel',
-    ));
-    _listaDropCategoria.add(DropdownMenuItem(
-      child: Text('Eletronicos'),
-      value: 'eletro',
-    ));
+      _listaDropCategoria = Configuracoes.getCategorias();
+
   }
 
   /** metodo que exibe popup de salvando anuncio **/
@@ -87,7 +71,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 CircularProgressIndicator(
-                  backgroundColor: Color(0xff0D214F),
+                  backgroundColor: Color(0xff9c27b0),
                 ),
                 SizedBox(height: 20),
                 Text('Salvando Anuncio...')
@@ -118,8 +102,13 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
         .document(_anuncio.id)
         .setData(_anuncio.toMap())
         .then((_) {
-      Navigator.pop(_dialogContext);
-      Navigator.of(context).pop();
+      /** salva anuncio publico **/
+      _banco
+          .collection(Firebase.COLECAO_ANUNCIOS)
+          .document(_anuncio.id)
+          .setData(_anuncio.toMap())
+          .then((_) =>
+              {Navigator.pop(_dialogContext), Navigator.of(context).pop()});
     });
   }
 
