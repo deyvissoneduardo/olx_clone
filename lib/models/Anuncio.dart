@@ -12,7 +12,20 @@ class Anuncio {
   String _descricao;
   List<String> _fotos;
 
-  Anuncio() {
+  Anuncio();
+
+  Anuncio.fromDocumentsSnapshot(DocumentSnapshot documentSnapshot) {
+    this.id = documentSnapshot.documentID;
+    this.estado = documentSnapshot[Firebase.DOC_ESTADO];
+    this.categoria = documentSnapshot[Firebase.DOC_CATEGORIA];
+    this.titulo = documentSnapshot[Firebase.DOC_TITULO];
+    this.preco = documentSnapshot[Firebase.DOC_PRECO];
+    this.telefone = documentSnapshot[Firebase.DOC_TELEFONE];
+    this.descricao = documentSnapshot[Firebase.DOC_DESCRICAO];
+    this.fotos = List<String>.from(documentSnapshot[Firebase.DOC_FOTOS]);
+  }
+
+  Anuncio.geraId() {
     /** inicia lista de images **/
     this.fotos = [];
     /** gera o id do anuncio **/
@@ -22,15 +35,16 @@ class Anuncio {
     this.id = anuncios.document().documentID;
   }
 
-  Map<String, dynamic> toMap(){
+  Map<String, dynamic> toMap() {
     Map<String, dynamic> dadosAnuncios = {
-      'id' : this.id,
-      'estado' : this.estado,
-      'categoria' : this.categoria,
-      'titulo' : this.titulo,
-      'telefone' : this.telefone,
-      'descricao' : this.descricao,
-      'fotos' : this.fotos,
+      'id': this.id,
+      'estado': this.estado,
+      'preco': this.preco,
+      'categoria': this.categoria,
+      'titulo': this.titulo,
+      'telefone': this.telefone,
+      'descricao': this.descricao,
+      'fotos': this.fotos,
     };
     return dadosAnuncios;
   }

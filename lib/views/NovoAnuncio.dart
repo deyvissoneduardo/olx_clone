@@ -86,7 +86,9 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                CircularProgressIndicator(),
+                CircularProgressIndicator(
+                  backgroundColor: Color(0xff0D214F),
+                ),
                 SizedBox(height: 20),
                 Text('Salvando Anuncio...')
               ],
@@ -117,7 +119,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
         .setData(_anuncio.toMap())
         .then((_) {
       Navigator.pop(_dialogContext);
-      Navigator.pushReplacementNamed(context, RouteGenerate.TELA_MEUS_ANUNCIOS);
+      Navigator.of(context).pop();
     });
   }
 
@@ -142,7 +144,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
     // TODO: implement initState
     super.initState();
     _carregaItensDrop();
-    _anuncio = Anuncio();
+    _anuncio = Anuncio.geraId();
   }
 
   @override
