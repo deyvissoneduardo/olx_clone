@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:olx_clone/models/Anuncio.dart';
 import 'package:olx_clone/routes/RoutesGenerate.dart';
+import 'package:olx_clone/shared/ThemeData.dart';
 import 'package:olx_clone/shared/database/Firebase.dart';
 import 'package:olx_clone/shared/utils/Configuracao.dart';
 import 'package:olx_clone/shared/widgets/CarregandoAnuncios.dart';
@@ -137,7 +138,7 @@ class _AnunciosState extends State<Anuncios> {
                   child: DropdownButtonHideUnderline(
                     child: Center(
                       child: DropdownButton(
-                        iconEnabledColor: Color(0xff9c27b0),
+                        iconEnabledColor: temaPadrao.primaryColor,
                         value: _itemEstadoSelecionado,
                         items: _listaDropEstatos,
                         style: TextStyle(fontSize: 22, color: Colors.black),
@@ -162,7 +163,7 @@ class _AnunciosState extends State<Anuncios> {
                   child: DropdownButtonHideUnderline(
                     child: Center(
                       child: DropdownButton(
-                        iconEnabledColor: Color(0xff9c27b0),
+                        iconEnabledColor: temaPadrao.primaryColor,
                         value: _itemCategoriaSelecionada,
                         items: _listaDropCategoria,
                         style: TextStyle(fontSize: 22, color: Colors.black),
@@ -216,6 +217,11 @@ class _AnunciosState extends State<Anuncios> {
 
                           return ListViewWidget(
                             anuncio: anuncio,
+                            onTapItem: () {
+                              Navigator.pushNamed(
+                                  context, RouteGenerate.TELA_DETALHES_ANUNCIO,
+                                  arguments: anuncio);
+                            },
                           );
                         },
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:olx_clone/shared/ThemeData.dart';
 
 class BotaoCuston extends StatelessWidget {
   final String texto;
@@ -16,7 +17,7 @@ class BotaoCuston extends StatelessWidget {
         this.texto,
         style: TextStyle(color: this.corTexto, fontSize: 20),
       ),
-      color: Color(0xff9c27b0),
+      color: temaPadrao.primaryColor,
       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
       onPressed: this.onPressed,
     );

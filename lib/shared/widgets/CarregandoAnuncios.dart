@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:olx_clone/shared/ThemeData.dart';
 
 class CarregandoAnuncio extends StatelessWidget {
   String texto;
@@ -11,7 +12,7 @@ class CarregandoAnuncio extends StatelessWidget {
       child: Center(
         child: Column(
           children: <Widget>[Text(this.texto), CircularProgressIndicator(
-            backgroundColor: Color(0xff9c27b0),
+            backgroundColor: temaPadrao.primaryColor,
           )],
         ),
       ),
